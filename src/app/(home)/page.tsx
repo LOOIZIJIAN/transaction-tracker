@@ -1,4 +1,5 @@
 "use client";
+import UploadExample from "@/services/upload/file-upload";
 import { trpc } from "@/trpc/client";
 
 export default function HomePage() {
@@ -7,6 +8,7 @@ export default function HomePage() {
   return (
     <div className="flxe flex-col items-center justify-center min-h-screen p-4 mt-80">
       <h1 className="mt-80 text-black font-bold">{data?.greeting}</h1>
+      <UploadExample/>
     </div>
   );
 }
