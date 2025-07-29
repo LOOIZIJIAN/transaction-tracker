@@ -13,7 +13,7 @@ export const HomeLayout = ({children}: HomeLayoutProps) => {
         <HomeNavbar/>
           <AddNewRecord/>
         <div className="flex min-h-screen pt-[4rem]">
-          <main className="flex-1 overflow-y-auto">
+          <main>
             {children}
           </main>
         </div>

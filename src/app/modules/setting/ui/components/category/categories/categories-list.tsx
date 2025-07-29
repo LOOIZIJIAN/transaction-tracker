@@ -1,7 +1,24 @@
 import { getCategories } from "@/services/setting/get-categories.";
+import { icons } from "lucide-react";
+
+type LucideIconName = keyof typeof icons;
 
 export const CategoriesList = async () => {
   const categories = await getCategories();
+
+  const Icon = ({
+    name,
+    className,
+  }: {
+    name: LucideIconName;
+    className?: string;
+  }) => {
+    const LucideIcon = icons[name];
+    if (!LucideIcon) {
+      return "AlignJustify";
+    }
+    return <LucideIcon className={className} />;
+  };
 
   if (categories.length === 0) {
     return (
@@ -22,17 +39,40 @@ export const CategoriesList = async () => {
         >
           <div className="flex items-center gap-4">
             <div
-              className="w-8 h-8 rounded-full"
+              className="w-8 h-8 rounded-full flex items-center justify-center"
               style={{ backgroundColor: cat.color || "#ccc" }}
-            />
+            >
+              {cat.icon && cat.icon in icons ? (
+                <Icon name={cat.icon as LucideIconName} />
+              ) : null}
+            </div>
             <div>
               <p className="font-semibold">{cat.name}</p>
               <p className="text-sm text-gray-500">{cat.description}</p>
             </div>
+            <div className="flex items-center gap-2">
+              {cat.subcategories?.map((subcat, idx) => (
+                <div
+                  key={subcat.id ?? idx}
+                  className="border border-gray-300 flex items-center gap-2 rounded-md p-1"
+                >
+                  <div
+                    className="w-4 h-4 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: subcat.color || "#ccc" }}
+                  >
+                    {subcat.icon && subcat.icon in icons ? (
+                      <Icon name={subcat.icon as LucideIconName} />
+                    ) : null}
+                  </div>
+                  <p className="text-sm text-gray-500">{subcat.name}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="text-gray-400 text-sm">
-            {cat.subcategories?.length ?? 0} subcategories
-          </p>
+          <div className="flex items-center gap-4">
+            <Icon name="SquarePen" className="text-blue-600" />
+            <Icon name="Delete" className="text-red-600" />
+          </div>
         </div>
       ))}
     </>

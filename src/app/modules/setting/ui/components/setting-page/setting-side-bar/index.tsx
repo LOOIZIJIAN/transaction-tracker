@@ -29,12 +29,12 @@ export function SettingSideBar() {
     <Sidebar className="pt-16 z-40 border-none" collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xl font-bold text-black ">Setting</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xl font-bold text-black rounded-md p-2 bg-gray-300">Setting</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className="text-lg">
                     <a href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>

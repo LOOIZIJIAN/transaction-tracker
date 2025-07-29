@@ -2,8 +2,6 @@ import { icons } from 'lucide-react';
 import { useState } from 'react';
 import clsx from 'clsx';
 
-// Create a type for all possible icon names from the lucide-react library.
-// This provides excellent type safety and autocompletion.
 type LucideIconName = keyof typeof icons;
 
 // A small, typed helper component to render an icon by its name.
