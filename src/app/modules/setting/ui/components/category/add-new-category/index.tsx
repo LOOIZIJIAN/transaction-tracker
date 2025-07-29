@@ -32,6 +32,7 @@ const Icon = ({
   return <LucideIcon className={className} />;
 };
 
+
 export const NewCategoryForm = () => {
   const { open, closeForm } = useContext(AddCategoryOpenStatus);
   const [selectedIcon, setSelectedIcon] = useState<LucideIconName>("Plus");
