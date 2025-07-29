@@ -29,7 +29,7 @@ export function SearchableIconPicker({ selectedIcon, onSelectIcon }: SearchableI
 
   const filteredIcons = allIconNames
     .filter((name) => name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .slice(0, 5); // Limit results for performance
+    .slice(0, 20); // Limit results for performance
 
   return (
     <div className="flex w-full flex-col gap-4">

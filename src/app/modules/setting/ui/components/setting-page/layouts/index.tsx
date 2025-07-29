@@ -1,5 +1,5 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { SettingSideBar } from "@/modules/setting/ui/components/setting-page/setting-side-bar/index";
+import { SettingSideBar } from "@/app/modules/setting/ui/components/setting-page/setting-side-bar/index";
 
 interface HomeLayoutProps {
   children: React.ReactNode;

@@ -1,4 +1,4 @@
-import { SettingLayout } from "@/modules/setting/ui/components/setting-page/layouts";
+import { SettingLayout } from "@/app/modules/setting/ui/components/setting-page/layouts";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

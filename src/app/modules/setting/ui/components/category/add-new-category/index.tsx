@@ -10,12 +10,13 @@ import { icons } from "lucide-react";
 import {
   NewCategoryFormSchema,
   NewCategoryFormSchemaType,
-} from "@/schemas/setting/setting-schema";
+} from "@/schemas/setting/new-category";
 import { AddCategoryOpenStatus } from "@/components/context/form-trigger-context";
 import { CreateNewCategory } from "@/services/setting/create-category";
 import { FormSuccess } from "@/components/form-success";
 import { FormError } from "@/components/form-error";
 import { Label } from "@/components/ui/label";
+import { getCategories } from "@/services/setting/get-categories.";
 
 type LucideIconName = keyof typeof icons;
 
@@ -34,7 +35,9 @@ const Icon = ({
 export const NewCategoryForm = () => {
   const { open, closeForm } = useContext(AddCategoryOpenStatus);
   const [selectedIcon, setSelectedIcon] = useState<LucideIconName>("Plus");
-  const [subCategoryIcons, setSubCategoryIcons] = useState<Record<number, LucideIconName>>({});
+  const [subCategoryIcons, setSubCategoryIcons] = useState<
+    Record<number, LucideIconName>
+  >({});
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -52,7 +55,8 @@ export const NewCategoryForm = () => {
     setValue(`subCategory.${index}.icon`, iconName);
   };
 
-  const { control, handleSubmit, setValue, reset } = useForm<NewCategoryFormSchemaType>({
+  const { control, handleSubmit, setValue, reset } =
+    useForm<NewCategoryFormSchemaType>({
       resolver: zodResolver(NewCategoryFormSchema),
       defaultValues: {
         Name: "",
@@ -69,22 +73,25 @@ export const NewCategoryForm = () => {
   });
 
   const onSubmit = (data: NewCategoryFormSchemaType) => {
+    const datas = getCategories();
+    console.log("datas", datas);
     console.log(error, success + "onSubmit");
     setError(undefined);
     setSuccess(undefined);
     startTransition(() => {
-      CreateNewCategory(data).then((result) => {
-        if (result.error) {
-          setError(result.error);
-          return;
-        }
-        setSuccess(result.success);
-        closeForm();
-      }).catch((err) => {
-        setError(err.message || "An unexpected error occurred");
-      });
-    })
-
+      CreateNewCategory(data)
+        .then((result) => {
+          if (result.error) {
+            setError(result.error);
+            return;
+          }
+          setSuccess(result.success);
+          closeForm();
+        })
+        .catch((err) => {
+          setError(err.message || "An unexpected error occurred");
+        });
+    });
   };
 
   if (!open) return null;
@@ -128,7 +135,7 @@ export const NewCategoryForm = () => {
                 </svg>
               </button>
             </div>
-            <FormSuccess  message={success} />
+            <FormSuccess message={success} />
             <FormError message={error} />
             <form
               onSubmit={handleSubmit(onSubmit)}
@@ -137,183 +144,186 @@ export const NewCategoryForm = () => {
               {/* Main Category Name */}
               <div className="ml-1">
                 <div className="border-2 rounded-md p-2">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Category Name
-                </label>
-                <Controller
-                  name="Name"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      placeholder="New Category Name"
-                      className="border px-2 py-1 rounded w-full"
-                      type="text"
-                    />
-                  )}
-                />
-              </div>
-
-              {/* Main Category Icon */}
-              <div className="mt-2">
-
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Category Icon
-                </label>
-                <div className="flex items-center gap-4 rounded-md bg-gray-200 p-4 mb-2">
-                  <p className="text-gray-600">Selected:</p>
-                  <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-                    <Icon name={selectedIcon} className="h-4 w-4" />
-                    {selectedIcon}
-                  </span>
-                </div>
-                <SearchableIconPicker
-                  selectedIcon={selectedIcon}
-                  onSelectIcon={handleIconSelect}
-                />
-              </div>
-
-              {/* Main Category Color */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Category Color
-                </label>
-                <Controller
-                  name="color"
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="color"
-                      className="border px-2 py-1 rounded w-20 h-10"
-                    />
-                  )}
-                />
-              </div>
-              </div>
-
-              {/* Subcategories */}
-              <div className="border-2 rounded-md p-2 mt-2">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Subcategories
-                </label>
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="border rounded-lg p-4 mb-4 bg-gray-50"
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Subcategory Name */}
-                      <div className="flex-1">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Name
-                        </label>
-                        <Controller
-                          control={control}
-                          name={`subCategory.${index}.name`}
-                          render={({ field }) => (
-                            <input
-                              {...field}
-                              placeholder={`Subcategory ${index + 1}`}
-                              className="border px-2 py-1 rounded w-full"
-                            />
-                          )}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Category Name
+                    </label>
+                    <Controller
+                      name="Name"
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          placeholder="New Category Name"
+                          className="border px-2 py-1 rounded w-full"
+                          type="text"
                         />
-                      </div>
-
-                      {/* Subcategory Color */}
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          Color
-                        </label>
-                        <Controller
-                          control={control}
-                          name={`subCategory.${index}.color`}
-                          render={({ field }) => (
-                            <input
-                              {...field}
-                              type="color"
-                              className="border px-2 py-1 rounded w-16 h-8"
-                            />
-                          )}
-                        />
-                      </div>
-
-                      {/* Remove Button */}
-                      <div className="pt-6">
-                        <button
-                          type="button"
-                          onClick={() => remove(index)}
-                          className="text-red-500 hover:text-red-700 px-2 py-1"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Subcategory Icon */}
-                    <div className="mt-4">
-                      <label className="block text-xs font-medium text-gray-600 mb-2">
-                        Icon
-                      </label>
-                      <div className="flex items-center gap-4 rounded-md bg-white p-3 mb-2">
-                        <p className="text-gray-600 text-sm">Selected:</p>
-                        <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-                          <Icon
-                            name={subCategoryIcons[index] || "Plus"}
-                            className="h-3 w-3"
-                          />
-                          {subCategoryIcons[index] || "Plus"}
-                        </span>
-                      </div>
-                      <SearchableIconPicker
-                        selectedIcon={subCategoryIcons[index] || "Plus"}
-                        onSelectIcon={(iconName) =>
-                          handleSubCategoryIconSelect(index, iconName)
-                        }
-                      />
-                    </div>
+                      )}
+                    />
                   </div>
-                ))}
 
-                <Button
-                variant={"ghost"}
-                  onClick={() => {
-                    const newIndex = fields.length;
-                    append({ name: "", color: "#000000", icon: "Plus" });
-                    setSubCategoryIcons((prev) => ({
-                      ...prev,
-                      [newIndex]: "Plus",
-                    }));
-                  }}
-                >
-                  Add Subcategory
-                </Button>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-                <Controller
-                  name="description"
-                  control={control}
-                  render={({ field }) => (
-                    <textarea
-                      {...field}
-                      placeholder="Category description (optional)"
-                      className="border px-2 py-1 rounded w-full h-20 resize-none"
+                  {/* Main Category Icon */}
+                  <div className="mt-2">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Category Icon
+                    </label>
+                    <div className="flex items-center gap-4 rounded-md bg-gray-200 p-4 mb-2">
+                      <p className="text-gray-600">Selected:</p>
+                      <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
+                        <Icon name={selectedIcon} className="h-4 w-4" />
+                        {selectedIcon}
+                      </span>
+                    </div>
+                    <SearchableIconPicker
+                      selectedIcon={selectedIcon}
+                      onSelectIcon={handleIconSelect}
                     />
-                  )}
-                />
+                  </div>
+
+                  {/* Main Category Color */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Category Color
+                    </label>
+                    <Controller
+                      name="color"
+                      control={control}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          type="color"
+                          className="border px-2 py-1 rounded w-20 h-10"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Subcategories */}
+                <div className="border-2 rounded-md p-2 mt-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Subcategories
+                  </label>
+                  {fields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="border rounded-lg p-4 mb-4 bg-gray-50"
+                    >
+                      <div className="flex items-start gap-4">
+                        {/* Subcategory Name */}
+                        <div className="flex-1">
+                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                            Name
+                          </label>
+                          <Controller
+                            control={control}
+                            name={`subCategory.${index}.name`}
+                            render={({ field }) => (
+                              <input
+                                {...field}
+                                placeholder={`Subcategory ${index + 1}`}
+                                className="border px-2 py-1 rounded w-full"
+                              />
+                            )}
+                          />
+                        </div>
+
+                        {/* Subcategory Color */}
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                            Color
+                          </label>
+                          <Controller
+                            control={control}
+                            name={`subCategory.${index}.color`}
+                            render={({ field }) => (
+                              <input
+                                {...field}
+                                type="color"
+                                className="border px-2 py-1 rounded w-16 h-8"
+                              />
+                            )}
+                          />
+                        </div>
+
+                        {/* Remove Button */}
+                        <div className="pt-6">
+                          <button
+                            type="button"
+                            onClick={() => remove(index)}
+                            className="text-red-500 hover:text-red-700 px-2 py-1"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Subcategory Icon */}
+                      <div className="mt-4">
+                        <label className="block text-xs font-medium text-gray-600 mb-2">
+                          Icon
+                        </label>
+                        <div className="flex items-center gap-4 rounded-md bg-white p-3 mb-2">
+                          <p className="text-gray-600 text-sm">Selected:</p>
+                          <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
+                            <Icon
+                              name={subCategoryIcons[index] || "Plus"}
+                              className="h-3 w-3"
+                            />
+                            {subCategoryIcons[index] || "Plus"}
+                          </span>
+                        </div>
+                        <SearchableIconPicker
+                          selectedIcon={subCategoryIcons[index] || "Plus"}
+                          onSelectIcon={(iconName) =>
+                            handleSubCategoryIconSelect(index, iconName)
+                          }
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  <Button
+                    variant={"ghost"}
+                    onClick={() => {
+                      const newIndex = fields.length;
+                      append({ name: "", color: "#000000", icon: "Plus" });
+                      setSubCategoryIcons((prev) => ({
+                        ...prev,
+                        [newIndex]: "Plus",
+                      }));
+                    }}
+                  >
+                    Add Subcategory
+                  </Button>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Description
+                  </label>
+                  <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                      <textarea
+                        {...field}
+                        placeholder="Category description (optional)"
+                        className="border px-2 py-1 rounded w-full h-20 resize-none"
+                      />
+                    )}
+                  />
+                </div>
               </div>
-             </div>
 
               {/* Submit Button */}
               <div className="relative bottom-0 right-0 h-16 shrink-0 flex items-center justify-end border-t px-4 mt-6">
-                <Button type="submit" className="px-6 py-2" disabled={isPending}>
+                <Button
+                  type="submit"
+                  className="px-6 py-2"
+                  disabled={isPending}
+                >
                   Create Category
                 </Button>
               </div>

@@ -1,10 +1,10 @@
-// "use server";
+"use server";
 
-// import { db } from "@/db";
-// import { categories, subCategories } from "@/db/schema";
+import { db } from "@/db";
+import { categoriesView } from "@/schemas/setting/category-view";
 
 
-// export const GetCategories = async () => {
-//   const categories = await db.query.categories.findMany();
-//   return categories;
-// }
+export const getCategories = async () => {
+  const data = await db.select().from(categoriesView);
+  return data;
+}
