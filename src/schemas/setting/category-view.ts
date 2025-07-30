@@ -10,3 +10,5 @@ export const categoriesView = pgTable("categories_view", {
   updatedAt: timestamp("updated_at").notNull(),
   subcategories: jsonb("subcategories").$type<{ id: string; name: string; color: string; icon: string }[]>(),
 });
+
+export type CategoryListType = typeof categoriesView.$inferSelect;

@@ -1,18 +1,21 @@
-import { getCategories } from "@/services/setting/get-categories.";
+"use client";
+
 import { icons } from "lucide-react";
+import { CategoryListType } from "@/schemas/setting/category-view";
 
 type LucideIconName = keyof typeof icons;
 
-export const CategoriesList = async () => {
-  const categories = await getCategories();
+export const CategoriesList = ({ categories }: {categories: CategoryListType[]}) => {
 
-  const Icon = ({
-    name,
-    className,
-  }: {
-    name: LucideIconName;
-    className?: string;
-  }) => {
+  const edit = (id: string) => {
+    console.log(id);
+  };
+
+  const deleteCategory = (id: string) => {
+    console.log(id);
+  };
+
+  const Icon = ({name, className,}: {name: LucideIconName;className?: string;}) => {
     const LucideIcon = icons[name];
     if (!LucideIcon) {
       return "AlignJustify";
@@ -70,8 +73,12 @@ export const CategoriesList = async () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Icon name="SquarePen" className="text-blue-600" />
-            <Icon name="Delete" className="text-red-600" />
+            <button onClick={() => edit(cat.id)}>
+              <Icon name="SquarePen" className="text-blue-600" />
+            </button>
+            <button onClick={() => deleteCategory(cat.id)}>
+              <Icon name="Delete" className="text-red-600" />
+            </button>
           </div>
         </div>
       ))}

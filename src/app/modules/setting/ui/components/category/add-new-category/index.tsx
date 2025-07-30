@@ -16,7 +16,6 @@ import { CreateNewCategory } from "@/services/setting/create-category";
 import { FormSuccess } from "@/components/form-success";
 import { FormError } from "@/components/form-error";
 import { Label } from "@/components/ui/label";
-import { getCategories } from "@/services/setting/get-categories.";
 
 type LucideIconName = keyof typeof icons;
 
@@ -31,7 +30,6 @@ const Icon = ({
   if (!LucideIcon) return null;
   return <LucideIcon className={className} />;
 };
-
 
 export const NewCategoryForm = () => {
   const { open, closeForm } = useContext(AddCategoryOpenStatus);
@@ -74,9 +72,6 @@ export const NewCategoryForm = () => {
   });
 
   const onSubmit = (data: NewCategoryFormSchemaType) => {
-    const datas = getCategories();
-    console.log("datas", datas);
-    console.log(error, success + "onSubmit");
     setError(undefined);
     setSuccess(undefined);
     startTransition(() => {
