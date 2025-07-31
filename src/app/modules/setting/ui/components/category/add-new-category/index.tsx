@@ -16,8 +16,11 @@ import { CreateNewCategory } from "@/services/setting/create-category";
 import { FormSuccess } from "@/components/form-success";
 import { FormError } from "@/components/form-error";
 import { Label } from "@/components/ui/label";
+import { mutate } from "swr";
 
 type LucideIconName = keyof typeof icons;
+
+//! WARNING: DO NOT USE THIS METHOD
 
 const Icon = ({
   name,
@@ -83,6 +86,7 @@ export const NewCategoryForm = () => {
           }
           setSuccess(result.success);
           closeCategoryForm();
+          mutate("/api/setting/category")
         })
         .catch((err) => {
           setError(err.message || "An unexpected error occurred");

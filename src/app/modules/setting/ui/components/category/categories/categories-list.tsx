@@ -2,38 +2,32 @@
 
 import { icons } from "lucide-react";
 import { CategoryListType } from "@/schemas/setting/category-view";
-import { useEffect, useState, useContext } from "react";
+import { useContext } from "react";
 import { CategoriesSkeleton } from "./categories-skeleton";
 import { CategoryOpenStatus } from "@/components/context/form-trigger-context";
+import useSWR, { mutate } from "swr";
+import { fetcher } from "@/lib/fetcher";
+import { deleteCategory } from "@/services/setting/delete-category";
 
 type LucideIconName = keyof typeof icons;
 
 const CategoriesList = () => {
-  const [categories, setCategories] = useState<CategoryListType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { openEditForm } = useContext(CategoryOpenStatus);
+const { openEditForm } = useContext(CategoryOpenStatus);
 
-  useEffect(() => {
-    fetch("/api/setting/category")
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories(data);
-        setLoading(false);
-      });
-  }, []);
+const { data: categories = [], isLoading: loading } = useSWR<CategoryListType[]>("/api/setting/category", fetcher);
 
   if (loading) return <CategoriesSkeleton />;
-  
+
   const edit = (id: string) => {
     const category = categories.find((cat) => cat.id === id);
-    console.log(category, "miao");
     if (category) {
       openEditForm(category);
     }
   };
-
-  const deleteCategory = (id: string) => {
-    console.log(id);
+//todo: ADD ALERT
+  const deleteCat = async (id: string) => {
+    await deleteCategory(id);
+    mutate("/api/setting/category");
   };
 
   const Icon = ({
@@ -52,7 +46,7 @@ const CategoriesList = () => {
 
   if (categories.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full border-2 border-black rounded-lg p-4 bg-amber-100">
+      <div className="flex flex-col items-center justify-center h-full border-2 border-black rounded-lg p-4 bg-gray-300">
         <p className="text-gray-600">
           No categories available. Please add a new category.
         </p>
@@ -103,7 +97,7 @@ const CategoriesList = () => {
             <button onClick={() => edit(cat.id)}>
               <Icon name="SquarePen" className="text-blue-600" />
             </button>
-            <button onClick={() => deleteCategory(cat.id)}>
+            <button onClick={() => deleteCat(cat.id)}>
               <Icon name="Delete" className="text-red-600" />
             </button>
           </div>
