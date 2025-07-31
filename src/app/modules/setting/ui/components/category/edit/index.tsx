@@ -31,9 +31,13 @@ const Icon = ({
   return <LucideIcon className={className} />;
 };
 
-export const NewCategoryForm = () => {
-  const { openNew, closeCategoryForm } = useContext(CategoryOpenStatus);
-  const [selectedIcon, setSelectedIcon] = useState<LucideIconName>("Plus");
+export const EditCategoryForm = () => {
+  const { openEdit, closeEditForm, dataById } = useContext(CategoryOpenStatus);
+  const [selectedIcon, setSelectedIcon] = useState<LucideIconName>(
+    dataById?.icon && icons[dataById.icon as LucideIconName]
+      ? (dataById.icon as LucideIconName)
+      : "Plus"
+  );
   const [subCategoryIcons, setSubCategoryIcons] = useState<
     Record<number, LucideIconName>
   >({});
@@ -82,7 +86,7 @@ export const NewCategoryForm = () => {
             return;
           }
           setSuccess(result.success);
-          closeCategoryForm();
+          closeEditForm();
         })
         .catch((err) => {
           setError(err.message || "An unexpected error occurred");
@@ -90,11 +94,11 @@ export const NewCategoryForm = () => {
     });
   };
 
-  if (!openNew) return null;
+  if (!openEdit) return null;
 
   return (
     <AnimatePresence>
-      {openNew && (
+      {openEdit && (
         <div className="fixed inset-0 flex items-center justify-center bg-opacity-30 z-50 mt-8">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -104,10 +108,10 @@ export const NewCategoryForm = () => {
             className="relative p-4 w-[1250px] min-w-[620px] h-[900px] mx-auto bg-white border-2 rounded-md flex flex-col"
           >
             <div className="flex justify-between items-center h-4 shrink-0 py-4 font-bold">
-              <Label className="text-lg">Add New Category</Label>
+              <Label className="text-lg">Edit Category Fuck</Label>
               <button
                 onClick={() => {
-                  closeCategoryForm();
+                  closeEditForm();
                   reset();
                   setError(undefined);
                   setSuccess(undefined);
@@ -153,6 +157,7 @@ export const NewCategoryForm = () => {
                           placeholder="New Category Name"
                           className="border px-2 py-1 rounded w-full"
                           type="text"
+                          value={dataById?.name}
                         />
                       )}
                     />
@@ -200,7 +205,7 @@ export const NewCategoryForm = () => {
                   <label className="mb-2 block text-sm font-medium text-gray-700">
                     Subcategories
                   </label>
-                  {fields.map((field, index) => (
+                  {dataById?.subcategories?.map((field, index) => (
                     <div
                       key={field.id}
                       className="border rounded-lg p-4 mb-4 bg-gray-50"
@@ -237,6 +242,7 @@ export const NewCategoryForm = () => {
                                 {...field}
                                 type="color"
                                 className="border px-2 py-1 rounded w-16 h-8"
+                                value={dataById?.subcategories?.[index].color}
                               />
                             )}
                           />
@@ -263,14 +269,21 @@ export const NewCategoryForm = () => {
                           <p className="text-gray-600 text-sm">Selected:</p>
                           <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
                             <Icon
-                              name={subCategoryIcons[index] || "Plus"}
+                              name={
+                                (dataById?.subcategories?.[index]
+                                  .icon as LucideIconName) || "Plus"
+                              }
                               className="h-3 w-3"
                             />
-                            {subCategoryIcons[index] || "Plus"}
+                            {(dataById?.subcategories?.[index]
+                              .icon as LucideIconName) || "Plus"}
                           </span>
                         </div>
                         <SearchableIconPicker
-                          selectedIcon={subCategoryIcons[index] || "Plus"}
+                          selectedIcon={
+                            (dataById?.subcategories?.[index]
+                              .icon as LucideIconName) || "Plus"
+                          }
                           onSelectIcon={(iconName) =>
                             handleSubCategoryIconSelect(index, iconName)
                           }

@@ -1,7 +1,7 @@
 export const CategoriesSkeleton = () => {
   return (
     <div className="flex flex-col gap-4">
-      {Array.from({ length: 5 }).map((_, i) => (
+      {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
           className="flex items-center justify-between bg-gray-200 p-4 rounded-lg animate-pulse"

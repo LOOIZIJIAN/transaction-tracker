@@ -1,4 +1,5 @@
-import { Blocks, User } from "lucide-react"
+import Link from "next/link";
+import { Blocks, User } from "lucide-react";
 
 import {
   Sidebar,
@@ -9,7 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const items = [
   {
@@ -22,23 +23,25 @@ const items = [
     url: "/setting/categories",
     icon: Blocks,
   },
-]
+];
 
 export function SettingSideBar() {
   return (
     <Sidebar className="pt-16 z-40 border-none" collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xl font-bold text-black rounded-md p-2 bg-gray-300">Setting</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xl font-bold text-black rounded-md p-2 bg-gray-300">
+            Setting
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="text-lg">
-                    <a href={item.url}>
+                    <Link href={item.url} className="flex items-center gap-2">
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -47,5 +50,5 @@ export function SettingSideBar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

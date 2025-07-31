@@ -2,20 +2,47 @@
 
 import { icons } from "lucide-react";
 import { CategoryListType } from "@/schemas/setting/category-view";
+import { useEffect, useState, useContext } from "react";
+import { CategoriesSkeleton } from "./categories-skeleton";
+import { CategoryOpenStatus } from "@/components/context/form-trigger-context";
 
 type LucideIconName = keyof typeof icons;
 
-export const CategoriesList = ({ categories }: {categories: CategoryListType[]}) => {
+const CategoriesList = () => {
+  const [categories, setCategories] = useState<CategoryListType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { openEditForm } = useContext(CategoryOpenStatus);
 
+  useEffect(() => {
+    fetch("/api/setting/category")
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <CategoriesSkeleton />;
+  
   const edit = (id: string) => {
-    console.log(id);
+    const category = categories.find((cat) => cat.id === id);
+    console.log(category, "miao");
+    if (category) {
+      openEditForm(category);
+    }
   };
 
   const deleteCategory = (id: string) => {
     console.log(id);
   };
 
-  const Icon = ({name, className,}: {name: LucideIconName;className?: string;}) => {
+  const Icon = ({
+    name,
+    className,
+  }: {
+    name: LucideIconName;
+    className?: string;
+  }) => {
     const LucideIcon = icons[name];
     if (!LucideIcon) {
       return "AlignJustify";
@@ -85,3 +112,5 @@ export const CategoriesList = ({ categories }: {categories: CategoryListType[]})
     </>
   );
 };
+
+export default CategoriesList;

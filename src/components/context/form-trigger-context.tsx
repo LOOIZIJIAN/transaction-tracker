@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useState, useEffect, ReactNode } from "react";
+import { CategoryListType } from "@/schemas/setting/category-view";
+import { createContext, useState, ReactNode } from "react";
 
 type OpenStatusType = {
   open: boolean;
@@ -14,22 +15,11 @@ export const NewTransactionOpenStatus = createContext<OpenStatusType>({
   closeForm: () => {},
 });
 
-export const AddCategoryOpenStatus = createContext<OpenStatusType>({
-  open: false,
-  openForm: () => {},
-  closeForm: () => {},
-});
-
-
 export const NewTransactionProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
 
   const openForm = () => setOpen(true);
   const closeForm = () => setOpen(false);
-
-  useEffect(() => {
-    console.log("AddRecordProvider rendered. open =", open);
-  }, [open]);
 
   return (
     <NewTransactionOpenStatus.Provider value={{ open, openForm, closeForm }}>
@@ -38,19 +28,43 @@ export const NewTransactionProvider = ({ children }: { children: ReactNode }) =>
   );
 };
 
-export const NewCategoryProvider = ({ children }: { children: ReactNode }) => {
-  const [open, setOpen] = useState(false);
+type CategoryOpenStatusType = {
+  openNew: boolean;
+  openEdit: boolean;
+  openEditForm: (data: CategoryListType) => void;
+  closeEditForm: () => void;
+  dataById: CategoryListType | null;
+  openCategoryForm: () => void;
+  closeCategoryForm: () => void;
+};
 
-  const openForm = () => setOpen(true);
-  const closeForm = () => setOpen(false);
+export const CategoryOpenStatus = createContext<CategoryOpenStatusType>({
+  openNew: false,
+  openEdit: false,
+  openEditForm: () => {},
+  closeEditForm: () => {},
+  dataById: null,
+  openCategoryForm: () => {},
+  closeCategoryForm: () => {},
+});
 
-  useEffect(() => {
-    console.log("AddCategoryProvider rendered. open =", open);
-  }, [open]);
+export const CategoryProvider = ({ children }: { children: ReactNode }) => {
+  const [openNew, setOpenNew] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [dataById, setDataById] = useState<CategoryListType | null>(null);
+
+  const openCategoryForm = () => setOpenNew(true);
+  const closeCategoryForm = () => setOpenNew(false);
+
+  const openEditForm = (data: CategoryListType) => {
+    setDataById(data);
+    setOpenEdit(true);
+  };
+  const closeEditForm = () => setOpenEdit(false);
 
   return (
-    <AddCategoryOpenStatus.Provider value={{ open, openForm, closeForm }}>
+    <CategoryOpenStatus.Provider value={{ openNew, openEdit, openEditForm, closeEditForm, dataById, openCategoryForm, closeCategoryForm }}>
       {children}
-    </AddCategoryOpenStatus.Provider>
+    </CategoryOpenStatus.Provider>
   );
 }
