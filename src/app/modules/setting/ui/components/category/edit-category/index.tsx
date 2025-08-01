@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { useState, useContext, useTransition } from "react";
+import { useState, useContext, useTransition, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { SearchableIconPicker } from "@/components/searchable-icon-picker";
@@ -12,10 +12,11 @@ import {
   NewCategoryFormSchemaType,
 } from "@/schemas/setting/new-category";
 import { CategoryOpenStatus } from "@/components/context/form-trigger-context";
-import { CreateNewCategory } from "@/services/setting/create-category";
+import { UpdateCategory } from "@/services/setting/update-category";
 import { FormSuccess } from "@/components/form-success";
 import { FormError } from "@/components/form-error";
 import { Label } from "@/components/ui/label";
+import { mutate } from "swr";
 
 type LucideIconName = keyof typeof icons;
 
@@ -33,23 +34,86 @@ const Icon = ({
 
 export const EditCategoryForm = () => {
   const { openEdit, closeEditForm, dataById } = useContext(CategoryOpenStatus);
-  const [selectedIcon, setSelectedIcon] = useState<LucideIconName>(
-    dataById?.icon && icons[dataById.icon as LucideIconName]
-      ? (dataById.icon as LucideIconName)
-      : "Plus"
-  );
-  const [subCategoryIcons, setSubCategoryIcons] = useState<
-    Record<number, LucideIconName>
-  >({});
+  const [selectedIcon, setSelectedIcon] = useState<LucideIconName>();
+  const [subCategoryIcons, setSubCategoryIcons] = useState<Record<number, LucideIconName>>({});
+
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
+
+  const { control, handleSubmit, setValue, reset } =
+    useForm<NewCategoryFormSchemaType>({
+      resolver: zodResolver(NewCategoryFormSchema),
+      defaultValues: {
+        id: dataById?.id,
+        name: dataById?.name || "",
+        description: dataById?.description || "",
+        color: dataById?.color || "#000000",
+        icon: dataById?.icon || "Plus",
+        subCategory: dataById?.subcategories?.map((sub) => ({
+          id: sub.id,
+          name: sub.name || "",
+          color: sub.color || "#000000",
+          icon: sub.icon || "Plus",
+        })) || [{ id: undefined, name: "", color: "#000000", icon: "Plus" }],
+      },
+    });
+
+    useEffect(() => {
+  if (dataById) {
+    reset({
+      id: dataById.id,
+      name: dataById.name || "",
+      description: dataById.description || "",
+      color: dataById.color || "#000000",
+      icon: dataById.icon || "Plus",
+      subCategory:
+        dataById.subcategories?.map((sub) => ({
+          id: sub.id,
+          name: sub.name || "",
+          color: sub.color || "#000000",
+          icon: sub.icon || "Plus",
+        })) || [{ id: undefined, name: "", color: "#000000", icon: "Plus" }],
+    });
+  }
+}, [dataById, reset]);
+
+useEffect(() => {
+  if (dataById?.subcategories) {
+    const subIcons: Record<number, LucideIconName> = dataById.subcategories.reduce(
+      (acc, d, idx) => {
+        acc[idx] = d.icon as LucideIconName;
+        return acc;
+      },
+      {} as Record<number, LucideIconName>
+    );
+    setSubCategoryIcons(subIcons);
+  }
+
+  if(dataById?.subcategories) {
+    dataById.subcategories.forEach((sub, idx) => {
+      setValue(`subCategory.${idx}.name`, sub.name);
+      setValue(`subCategory.${idx}.color`, sub.color);
+    });
+  }
+
+  if(dataById?.icon) setSelectedIcon(dataById.icon as LucideIconName);
+  if(dataById?.name) setValue('name',dataById.name);
+  if(dataById?.description) setValue('description',dataById.description);
+  if(dataById?.color) setValue('color',dataById.color);
+
+}, [dataById, setValue]);
+  console.log('subCategoryIcons',subCategoryIcons);
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "subCategory",
+  });
 
   const handleIconSelect = (iconName: LucideIconName) => {
     setSelectedIcon(iconName);
     setValue("icon", iconName);
   };
-
   const handleSubCategoryIconSelect = (
     index: number,
     iconName: LucideIconName
@@ -58,28 +122,11 @@ export const EditCategoryForm = () => {
     setValue(`subCategory.${index}.icon`, iconName);
   };
 
-  const { control, handleSubmit, setValue, reset } =
-    useForm<NewCategoryFormSchemaType>({
-      resolver: zodResolver(NewCategoryFormSchema),
-      defaultValues: {
-        Name: "",
-        description: "",
-        color: "#000000",
-        icon: "Plus",
-        subCategory: [{ name: "", color: "#000000", icon: "Plus" }],
-      },
-    });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "subCategory",
-  });
-
   const onSubmit = (data: NewCategoryFormSchemaType) => {
     setError(undefined);
     setSuccess(undefined);
     startTransition(() => {
-      CreateNewCategory(data)
+      UpdateCategory(data)
         .then((result) => {
           if (result.error) {
             setError(result.error);
@@ -87,6 +134,7 @@ export const EditCategoryForm = () => {
           }
           setSuccess(result.success);
           closeEditForm();
+          mutate("/api/setting/category");
         })
         .catch((err) => {
           setError(err.message || "An unexpected error occurred");
@@ -108,7 +156,7 @@ export const EditCategoryForm = () => {
             className="relative p-4 w-[1250px] min-w-[620px] h-[900px] mx-auto bg-white border-2 rounded-md flex flex-col"
           >
             <div className="flex justify-between items-center h-4 shrink-0 py-4 font-bold">
-              <Label className="text-lg">Edit Category Fuck</Label>
+              <Label className="text-lg font-extrabold">Edit Category</Label>
               <button
                 onClick={() => {
                   closeEditForm();
@@ -116,7 +164,7 @@ export const EditCategoryForm = () => {
                   setError(undefined);
                   setSuccess(undefined);
                 }}
-                className="text-gray-500 hover:text-black text-lg font-extrabold"
+                className="text-black hover:text-black text-lg font-extrabold"
                 aria-label="Close form"
               >
                 <svg
@@ -144,23 +192,41 @@ export const EditCategoryForm = () => {
               {/* Main Category Name */}
               <div className="ml-1">
                 <div className="border-2 rounded-md p-2">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Category Name
-                    </label>
-                    <Controller
-                      name="Name"
-                      control={control}
-                      render={({ field }) => (
-                        <input
-                          {...field}
-                          placeholder="New Category Name"
-                          className="border px-2 py-1 rounded w-full"
-                          type="text"
-                          value={dataById?.name}
-                        />
-                      )}
-                    />
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1">
+                      <label className="mb-2 block text-lg font-bold text-gray-700">
+                        Category
+                      </label>
+                      <Controller
+                        name="name"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            placeholder="New Category Name"
+                            className="border px-2 py-1 rounded w-full"
+                            type="text"
+                          />
+                        )}
+                      />
+                    </div>
+                    {/* Main Category Color */}
+                    <div>
+                      <label className="mb-4 block text-sm font-medium text-gray-700">
+                        Color
+                      </label>
+                      <Controller
+                        name="color"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="color"
+                            className="border px-2 py-1 rounded w-16 h-8"
+                          />
+                        )}
+                      />
+                    </div>
                   </div>
 
                   {/* Main Category Icon */}
@@ -171,38 +237,20 @@ export const EditCategoryForm = () => {
                     <div className="flex items-center gap-4 rounded-md bg-gray-200 p-4 mb-2">
                       <p className="text-gray-600">Selected:</p>
                       <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-                        <Icon name={selectedIcon} className="h-4 w-4" />
+                        <Icon name={selectedIcon ?? "Plus"} className="h-4 w-4" />
                         {selectedIcon}
                       </span>
                     </div>
                     <SearchableIconPicker
-                      selectedIcon={selectedIcon}
+                      selectedIcon={selectedIcon ?? "Plus"}
                       onSelectIcon={handleIconSelect}
-                    />
-                  </div>
-
-                  {/* Main Category Color */}
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Category Color
-                    </label>
-                    <Controller
-                      name="color"
-                      control={control}
-                      render={({ field }) => (
-                        <input
-                          {...field}
-                          type="color"
-                          className="border px-2 py-1 rounded w-20 h-10"
-                        />
-                      )}
                     />
                   </div>
                 </div>
 
                 {/* Subcategories */}
                 <div className="border-2 rounded-md p-2 mt-2">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                  <label className="mb-2 block text-lg font-extrabold text-gray-700">
                     Subcategories
                   </label>
                   {dataById?.subcategories?.map((field, index) => (
@@ -242,7 +290,6 @@ export const EditCategoryForm = () => {
                                 {...field}
                                 type="color"
                                 className="border px-2 py-1 rounded w-16 h-8"
-                                value={dataById?.subcategories?.[index].color}
                               />
                             )}
                           />
@@ -269,21 +316,14 @@ export const EditCategoryForm = () => {
                           <p className="text-gray-600 text-sm">Selected:</p>
                           <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
                             <Icon
-                              name={
-                                (dataById?.subcategories?.[index]
-                                  .icon as LucideIconName) || "Plus"
-                              }
-                              className="h-3 w-3"
+                              name={subCategoryIcons[index] || "Plus"}
+                              className="h-5 w-5"
                             />
-                            {(dataById?.subcategories?.[index]
-                              .icon as LucideIconName) || "Plus"}
+                            {subCategoryIcons[index] || "Plus"}
                           </span>
                         </div>
                         <SearchableIconPicker
-                          selectedIcon={
-                            (dataById?.subcategories?.[index]
-                              .icon as LucideIconName) || "Plus"
-                          }
+                          selectedIcon={subCategoryIcons[index] || "Plus"}
                           onSelectIcon={(iconName) =>
                             handleSubCategoryIconSelect(index, iconName)
                           }
@@ -309,7 +349,7 @@ export const EditCategoryForm = () => {
 
                 {/* Description */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                  <label className="mt-3 block text-sm font-medium text-gray-700">
                     Description
                   </label>
                   <Controller
@@ -333,7 +373,7 @@ export const EditCategoryForm = () => {
                   className="px-6 py-2"
                   disabled={isPending}
                 >
-                  Create Category
+                  Update Category
                 </Button>
               </div>
             </form>

@@ -61,11 +61,12 @@ export const NewCategoryForm = () => {
     useForm<NewCategoryFormSchemaType>({
       resolver: zodResolver(NewCategoryFormSchema),
       defaultValues: {
-        Name: "",
+        id: undefined,
+        name: "",
         description: "",
         color: "#000000",
         icon: "Plus",
-        subCategory: [{ name: "", color: "#000000", icon: "Plus" }],
+        subCategory: [{ id: undefined, name: "", color: "#000000", icon: "Plus" }],
       },
     });
 
@@ -86,7 +87,7 @@ export const NewCategoryForm = () => {
           }
           setSuccess(result.success);
           closeCategoryForm();
-          mutate("/api/setting/category")
+          mutate("/api/setting/category");
         })
         .catch((err) => {
           setError(err.message || "An unexpected error occurred");
@@ -108,7 +109,7 @@ export const NewCategoryForm = () => {
             className="relative p-4 w-[1250px] min-w-[620px] h-[900px] mx-auto bg-white border-2 rounded-md flex flex-col"
           >
             <div className="flex justify-between items-center h-4 shrink-0 py-4 font-bold">
-              <Label className="text-lg">Add New Category</Label>
+              <Label className="text-lg font-extrabold">Add New Category</Label>
               <button
                 onClick={() => {
                   closeCategoryForm();
@@ -116,7 +117,7 @@ export const NewCategoryForm = () => {
                   setError(undefined);
                   setSuccess(undefined);
                 }}
-                className="text-gray-500 hover:text-black text-lg font-extrabold"
+                className="text-black hover:text-black text-lg font-extrabold"
                 aria-label="Close form"
               >
                 <svg
@@ -144,22 +145,41 @@ export const NewCategoryForm = () => {
               {/* Main Category Name */}
               <div className="ml-1">
                 <div className="border-2 rounded-md p-2">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Category Name
-                    </label>
-                    <Controller
-                      name="Name"
-                      control={control}
-                      render={({ field }) => (
-                        <input
-                          {...field}
-                          placeholder="New Category Name"
-                          className="border px-2 py-1 rounded w-full"
-                          type="text"
-                        />
-                      )}
-                    />
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1">
+                      <label className="mb-2 block text-lg font-bold text-gray-700">
+                        Category
+                      </label>
+                      <Controller
+                        name="name"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            placeholder="New Category Name"
+                            className="border px-2 py-1 rounded w-full"
+                            type="text"
+                          />
+                        )}
+                      />
+                    </div>
+                    {/* Main Category Color */}
+                    <div>
+                      <label className="mb-4 block text-sm font-medium text-gray-700">
+                        Color
+                      </label>
+                      <Controller
+                        name="color"
+                        control={control}
+                        render={({ field }) => (
+                          <input
+                            {...field}
+                            type="color"
+                            className="border px-2 py-1 rounded w-16 h-8"
+                          />
+                        )}
+                      />
+                    </div>
                   </div>
 
                   {/* Main Category Icon */}
@@ -179,29 +199,11 @@ export const NewCategoryForm = () => {
                       onSelectIcon={handleIconSelect}
                     />
                   </div>
-
-                  {/* Main Category Color */}
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Category Color
-                    </label>
-                    <Controller
-                      name="color"
-                      control={control}
-                      render={({ field }) => (
-                        <input
-                          {...field}
-                          type="color"
-                          className="border px-2 py-1 rounded w-20 h-10"
-                        />
-                      )}
-                    />
-                  </div>
                 </div>
 
                 {/* Subcategories */}
                 <div className="border-2 rounded-md p-2 mt-2">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                  <label className="mb-2 block text-lg font-bold text-gray-700">
                     Subcategories
                   </label>
                   {fields.map((field, index) => (
@@ -268,7 +270,7 @@ export const NewCategoryForm = () => {
                           <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
                             <Icon
                               name={subCategoryIcons[index] || "Plus"}
-                              className="h-3 w-3"
+                              className="h-5 w-5"
                             />
                             {subCategoryIcons[index] || "Plus"}
                           </span>
@@ -300,7 +302,7 @@ export const NewCategoryForm = () => {
 
                 {/* Description */}
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                  <label className="mt-3 block text-sm font-medium text-gray-700">
                     Description
                   </label>
                   <Controller

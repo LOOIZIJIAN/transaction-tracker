@@ -27,7 +27,7 @@ const CategoriesList = () => {
       openEditForm(category);
     }
   };
-  //todo: ADD ALERT
+
   const deleteCat = async (id: string) => {
     Swal.fire({
       title: "Are you sure?",
@@ -43,7 +43,7 @@ const CategoriesList = () => {
         mutate("/api/setting/category");
         Swal.fire({
           title: "Deleted!",
-          text: "Your file has been deleted.",
+          text: "Category has been deleted.",
           icon: "success",
         });
       }

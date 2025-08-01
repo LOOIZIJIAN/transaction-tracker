@@ -1,9 +1,9 @@
 import { CategoryProvider } from "@/components/context/form-trigger-context"
 import { Categories } from "../categories"
-import { NewCategoryForm } from "../add-new-category"
+import { NewCategoryForm } from "../new-category"
 import { Suspense } from "react";
 import { CategoriesSkeleton } from "../categories/categories-skeleton";
-import { EditCategoryForm } from "../edit";
+import { EditCategoryForm } from "../edit-category";
 
 
 export const SettingCategories = () => {
