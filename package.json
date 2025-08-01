@@ -65,6 +65,7 @@
     "react-resizable-panels": "^3.0.3",
     "recharts": "^3.0.2",
     "sonner": "^2.0.6",
+    "sweetalert2": "^11.22.2",
     "swr": "^2.3.4",
     "tailwind-merge": "^3.3.1",
     "tls": "^0.0.1",

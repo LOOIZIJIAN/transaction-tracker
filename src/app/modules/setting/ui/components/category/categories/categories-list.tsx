@@ -8,13 +8,16 @@ import { CategoryOpenStatus } from "@/components/context/form-trigger-context";
 import useSWR, { mutate } from "swr";
 import { fetcher } from "@/lib/fetcher";
 import { deleteCategory } from "@/services/setting/delete-category";
+import Swal from "sweetalert2";
 
 type LucideIconName = keyof typeof icons;
 
 const CategoriesList = () => {
-const { openEditForm } = useContext(CategoryOpenStatus);
+  const { openEditForm } = useContext(CategoryOpenStatus);
 
-const { data: categories = [], isLoading: loading } = useSWR<CategoryListType[]>("/api/setting/category", fetcher);
+  const { data: categories = [], isLoading: loading } = useSWR<
+    CategoryListType[]
+  >("/api/setting/category", fetcher);
 
   if (loading) return <CategoriesSkeleton />;
 
@@ -24,10 +27,28 @@ const { data: categories = [], isLoading: loading } = useSWR<CategoryListType[]>
       openEditForm(category);
     }
   };
-//todo: ADD ALERT
+  //todo: ADD ALERT
   const deleteCat = async (id: string) => {
-    await deleteCategory(id);
-    mutate("/api/setting/category");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then( async(result) => {
+      if (result.isConfirmed) {
+        await deleteCategory(id);
+        mutate("/api/setting/category");
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success",
+        });
+      }
+    });
+    return
   };
 
   const Icon = ({
