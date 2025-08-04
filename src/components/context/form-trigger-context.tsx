@@ -68,3 +68,44 @@ export const CategoryProvider = ({ children }: { children: ReactNode }) => {
     </CategoryOpenStatus.Provider>
   );
 }
+
+type PaymentMethodOpenStatusType = {
+  openNew: boolean;
+  openEdit: boolean;
+  openEditForm: (data: CategoryListType) => void;
+  closeEditForm: () => void;
+  //dataById: CategoryListType | null;
+  openPaymentMethodyForm: () => void;
+  closePaymentMethodForm: () => void;
+};
+
+export const PaymentMethodOpenStatus = createContext<PaymentMethodOpenStatusType>({
+  openNew: false,
+  openEdit: false,
+  openEditForm: () => {},
+  closeEditForm: () => {},
+  //dataById: null,
+  openPaymentMethodyForm: () => {},
+  closePaymentMethodForm: () => {},
+});
+
+export const PaymentMethodProvider = ({ children }: { children: ReactNode }) => {
+  const [openNew, setOpenNew] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  //const [dataById, setDataById] = useState<PaymentMethodListType | null>(null);
+
+  const openPaymentMethodyForm = () => setOpenNew(true);
+  const closePaymentMethodForm = () => setOpenNew(false);
+
+  const openEditForm = () => {
+    //setDataById(data);
+    setOpenEdit(true);
+  };
+  const closeEditForm = () => setOpenEdit(false);
+
+  return (
+    <PaymentMethodOpenStatus.Provider value={{ openNew, openEdit, openEditForm, closeEditForm, openPaymentMethodyForm, closePaymentMethodForm }}>
+      {children}
+    </PaymentMethodOpenStatus.Provider>
+  );
+}

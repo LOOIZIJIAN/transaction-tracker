@@ -35,14 +35,15 @@ const Icon = ({
 export const EditCategoryForm = () => {
   const { openEdit, closeEditForm, dataById } = useContext(CategoryOpenStatus);
   const [selectedIcon, setSelectedIcon] = useState<LucideIconName>();
-  const [subCategoryIcons, setSubCategoryIcons] = useState<Record<number, LucideIconName>>({});
+  const [subCategoryIcons, setSubCategoryIcons] = useState<
+    Record<number, LucideIconName>
+  >({});
 
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
-  const { control, handleSubmit, setValue, reset } =
-    useForm<NewCategoryFormSchemaType>({
+  const { control, handleSubmit, setValue, reset } = useForm<NewCategoryFormSchemaType>({
       resolver: zodResolver(NewCategoryFormSchema),
       defaultValues: {
         id: dataById?.id,
@@ -57,53 +58,49 @@ export const EditCategoryForm = () => {
           icon: sub.icon || "Plus",
         })) || [{ id: undefined, name: "", color: "#000000", icon: "Plus" }],
       },
-    });
+  });
 
-    useEffect(() => {
-  if (dataById) {
-    reset({
-      id: dataById.id,
-      name: dataById.name || "",
-      description: dataById.description || "",
-      color: dataById.color || "#000000",
-      icon: dataById.icon || "Plus",
-      subCategory:
-        dataById.subcategories?.map((sub) => ({
+  useEffect(() => {
+    if (dataById) {
+      reset({
+        id: dataById.id,
+        name: dataById.name || "",
+        description: dataById.description || "",
+        color: dataById.color || "#000000",
+        icon: dataById.icon || "Plus",
+        subCategory: dataById.subcategories?.map((sub) => ({
           id: sub.id,
           name: sub.name || "",
           color: sub.color || "#000000",
           icon: sub.icon || "Plus",
         })) || [{ id: undefined, name: "", color: "#000000", icon: "Plus" }],
-    });
-  }
-}, [dataById, reset]);
+      });
+    }
+  }, [dataById, reset]);
 
-useEffect(() => {
-  if (dataById?.subcategories) {
-    const subIcons: Record<number, LucideIconName> = dataById.subcategories.reduce(
-      (acc, d, idx) => {
-        acc[idx] = d.icon as LucideIconName;
-        return acc;
-      },
-      {} as Record<number, LucideIconName>
-    );
-    setSubCategoryIcons(subIcons);
-  }
+  useEffect(() => {
+    if (dataById?.subcategories) {
+      const subIcons: Record<number, LucideIconName> =
+        dataById.subcategories.reduce((acc, d, idx) => {
+          acc[idx] = d.icon as LucideIconName;
+          return acc;
+        }, {} as Record<number, LucideIconName>);
+      setSubCategoryIcons(subIcons);
+    }
 
-  if(dataById?.subcategories) {
-    dataById.subcategories.forEach((sub, idx) => {
-      setValue(`subCategory.${idx}.name`, sub.name);
-      setValue(`subCategory.${idx}.color`, sub.color);
-    });
-  }
+    if (dataById?.subcategories) {
+      dataById.subcategories.forEach((sub, idx) => {
+        setValue(`subCategory.${idx}.name`, sub.name);
+        setValue(`subCategory.${idx}.color`, sub.color);
+      });
+    }
 
-  if(dataById?.icon) setSelectedIcon(dataById.icon as LucideIconName);
-  if(dataById?.name) setValue('name',dataById.name);
-  if(dataById?.description) setValue('description',dataById.description);
-  if(dataById?.color) setValue('color',dataById.color);
-
-}, [dataById, setValue]);
-  console.log('subCategoryIcons',subCategoryIcons);
+    if (dataById?.icon) setSelectedIcon(dataById.icon as LucideIconName);
+    if (dataById?.name) setValue("name", dataById.name);
+    if (dataById?.description) setValue("description", dataById.description);
+    if (dataById?.color) setValue("color", dataById.color);
+  }, [dataById, setValue]);
+  console.log("subCategoryIcons", subCategoryIcons);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -142,7 +139,7 @@ useEffect(() => {
     });
   };
 
-  if (!openEdit) return null;
+  if (!openEdit || !dataById) return null;
 
   return (
     <AnimatePresence>
@@ -237,7 +234,10 @@ useEffect(() => {
                     <div className="flex items-center gap-4 rounded-md bg-gray-200 p-4 mb-2">
                       <p className="text-gray-600">Selected:</p>
                       <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-                        <Icon name={selectedIcon ?? "Plus"} className="h-4 w-4" />
+                        <Icon
+                          name={selectedIcon ?? "Plus"}
+                          className="h-4 w-4"
+                        />
                         {selectedIcon}
                       </span>
                     </div>
@@ -272,6 +272,7 @@ useEffect(() => {
                                 {...field}
                                 placeholder={`Subcategory ${index + 1}`}
                                 className="border px-2 py-1 rounded w-full"
+                                value={field.value ?? ''}
                               />
                             )}
                           />
@@ -290,6 +291,7 @@ useEffect(() => {
                                 {...field}
                                 type="color"
                                 className="border px-2 py-1 rounded w-16 h-8"
+                                value={field.value ?? ''}
                               />
                             )}
                           />

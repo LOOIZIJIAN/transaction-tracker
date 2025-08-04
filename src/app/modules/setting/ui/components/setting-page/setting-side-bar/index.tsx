@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Blocks, User } from "lucide-react";
+import { Blocks, User, CreditCard } from "lucide-react";
 
 import {
   Sidebar,
@@ -23,6 +23,11 @@ const items = [
     url: "/setting/categories",
     icon: Blocks,
   },
+  {
+    title: "Payment Method",
+    url: "/setting/payment-method",
+    icon: CreditCard,
+  },
 ];
 
 export function SettingSideBar() {
@@ -30,13 +35,13 @@ export function SettingSideBar() {
     <Sidebar className="pt-16 z-40 border-none" collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xl font-bold text-black rounded-md p-2 bg-gray-300">
+          <SidebarGroupLabel className="text-xl font-bold text-black rounded-sm bg-gray-300">
             Setting
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="mt-1.5">
             <SidebarMenu>
               {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.title} className="py-1">
                   <SidebarMenuButton asChild className="text-lg">
                     <Link href={item.url} className="flex items-center gap-2">
                       <item.icon />
