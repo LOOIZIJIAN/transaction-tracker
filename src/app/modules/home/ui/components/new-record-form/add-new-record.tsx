@@ -1,6 +1,6 @@
 "use client";
 
-import { NewTransactionOpenStatus } from "@/components/context/form-trigger-context";
+import { SettingContext } from "@/components/context/setting-context";
 import { useContext } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,19 +11,19 @@ type FormValues = {
 };
 
 export function AddNewRecord() {
-  const { open, closeForm } = useContext(NewTransactionOpenStatus);
+  const { transactionOpen, closeTransactionForm } = useContext(SettingContext);
   const { control, handleSubmit } = useForm<FormValues>();
 
   const onSubmit = (data: FormValues) => {
     console.log("Form submitted:", data);
-    closeForm();
+    closeTransactionForm();
   };
 
-  if (!open) return null;
+  if (!transactionOpen) return null;
 
   return (
     <AnimatePresence>
-      {open && (
+      {transactionOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-opacity-30 z-50">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -33,7 +33,7 @@ export function AddNewRecord() {
             className="relative p-4 w-[1200px] min-w-[620px] h-[850px] mx-auto bg-white border-2 rounded-md"
           >
             <button
-              onClick={closeForm}
+              onClick={closeTransactionForm}
               className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg font-extrabold"
               aria-label="Close form"
             >

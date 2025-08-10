@@ -11,7 +11,7 @@ import {
   NewCategoryFormSchema,
   NewCategoryFormSchemaType,
 } from "@/schemas/setting/new-category";
-import { CategoryOpenStatus } from "@/components/context/form-trigger-context";
+import { SettingContext } from "@/components/context/setting-context";
 import { CreateNewCategory } from "@/services/setting/create-category";
 import { FormSuccess } from "@/components/form-success";
 import { FormError } from "@/components/form-error";
@@ -19,8 +19,6 @@ import { Label } from "@/components/ui/label";
 import { mutate } from "swr";
 
 type LucideIconName = keyof typeof icons;
-
-//! WARNING: DO NOT USE THIS METHOD
 
 const Icon = ({
   name,
@@ -35,7 +33,7 @@ const Icon = ({
 };
 
 export const NewCategoryForm = () => {
-  const { openNew, closeCategoryForm } = useContext(CategoryOpenStatus);
+  const { categoryOpenNew, closeCategoryForm } = useContext(SettingContext);
   const [selectedIcon, setSelectedIcon] = useState<LucideIconName>("Plus");
   const [subCategoryIcons, setSubCategoryIcons] = useState<
     Record<number, LucideIconName>
@@ -66,7 +64,9 @@ export const NewCategoryForm = () => {
         description: "",
         color: "#000000",
         icon: "Plus",
-        subCategory: [{ id: undefined, name: "", color: "#000000", icon: "Plus" }],
+        subCategory: [
+          { id: undefined, name: "", color: "#000000", icon: "Plus" },
+        ],
       },
     });
 
@@ -95,11 +95,11 @@ export const NewCategoryForm = () => {
     });
   };
 
-  if (!openNew) return null;
+  if (!categoryOpenNew) return null;
 
   return (
     <AnimatePresence>
-      {openNew && (
+      {categoryOpenNew && (
         <div className="fixed inset-0 flex items-center justify-center bg-opacity-30 z-50 mt-8">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
@@ -326,7 +326,7 @@ export const NewCategoryForm = () => {
                   className="px-6 py-2"
                   disabled={isPending}
                 >
-                  Create Category
+                  Create Payment Method
                 </Button>
               </div>
             </form>

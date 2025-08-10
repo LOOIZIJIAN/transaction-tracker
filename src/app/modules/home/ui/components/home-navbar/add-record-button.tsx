@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { NewTransactionOpenStatus } from "@/components/context/form-trigger-context";
+import { SettingContext } from "@/components/context/setting-context";
 import { Button } from "@/components/ui/button";
 import { useContext } from "react";
 
 export const AddRecordButton = () => {
-  const { openForm } = useContext(NewTransactionOpenStatus);
+  const { openTransactionForm } = useContext(SettingContext);
 
   return (
-    <Button size="sm" onClick={openForm}>
+    <Button size="sm" onClick={openTransactionForm}>
       Add Transaction
     </Button>
   );

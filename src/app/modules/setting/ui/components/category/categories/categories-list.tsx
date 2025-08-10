@@ -4,13 +4,24 @@ import { useContext, useEffect, useState } from "react";
 import { icons } from "lucide-react";
 import useSWR, { mutate } from "swr";
 import Swal from "sweetalert2";
-import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
-import { CategoryOpenStatus } from "@/components/context/form-trigger-context";
+import {
+  DndContext,
+  closestCenter,
+  useSensor,
+  useSensors,
+  PointerSensor,
+} from "@dnd-kit/core";
+import { SettingContext } from "@/components/context/setting-context";
 import { CategoriesSkeleton } from "./categories-skeleton";
 import { CategoryListType } from "@/schemas/setting/category-view";
 import { fetcher } from "@/lib/fetcher";
 import { deleteCategory } from "@/services/setting/delete-category";
-import { useSortable, SortableContext, arrayMove, verticalListSortingStrategy} from "@dnd-kit/sortable";
+import {
+  useSortable,
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 type LucideIconName = keyof typeof icons;
 
@@ -26,7 +37,7 @@ const Icon = ({
 };
 
 export default function CategoriesList() {
-  const { openEditForm } = useContext(CategoryOpenStatus);
+  const { openCategoryEditForm } = useContext(SettingContext);
   const { data: categories = [], isLoading } = useSWR<CategoryListType[]>(
     "/api/setting/category",
     fetcher
@@ -42,7 +53,7 @@ export default function CategoriesList() {
 
   const handleEdit = (id: string) => {
     const category = categories.find((cat) => cat.id === id);
-    if (category) openEditForm(category);
+    if (category) openCategoryEditForm(category);
   };
 
   const handleDelete = async (id: string) => {
@@ -87,7 +98,11 @@ export default function CategoriesList() {
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
         {items.map((id) => {
           const cat = categories.find((c) => c.id === id);
@@ -107,7 +122,7 @@ export default function CategoriesList() {
   );
 }
 
-// 💡 This handles dragging for each card
+// Draggable card with drag handle on the left
 function DraggableCategoryCard({
   category,
   onEdit,
@@ -117,13 +132,8 @@ function DraggableCategoryCard({
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: category.id });
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: category.id });
 
   const style = {
     transform: `translate3d(${transform?.x ?? 0}px, ${transform?.y ?? 0}px, 0)`,
@@ -135,10 +145,18 @@ function DraggableCategoryCard({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
-      className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-2 cursor-move"
+      className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-2"
     >
-      <div className="flex items-center gap-4">
+      {/* Drag handle */}
+      <div
+        {...listeners}
+        className="flex items-center justify-center cursor-grab mr-4 text-gray-500"
+      >
+        <icons.GripVertical />
+      </div>
+
+      {/* Category info */}
+      <div className="flex items-center gap-4 flex-1">
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center"
           style={{ backgroundColor: category.color || "#ccc" }}
@@ -149,6 +167,8 @@ function DraggableCategoryCard({
           <p className="font-semibold">{category.name}</p>
           <p className="text-sm text-gray-500">{category.description}</p>
         </div>
+
+        {/* Subcategories */}
         <div className="flex items-center gap-2">
           {category.subcategories?.map((subcat, idx) => (
             <div
@@ -171,12 +191,26 @@ function DraggableCategoryCard({
           ))}
         </div>
       </div>
+
+      {/* Actions */}
       <div className="flex items-center gap-4">
-        <button onClick={() => onEdit(category.id)}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onEdit(category.id);
+          }}
+        >
           <Icon name="SquarePen" className="text-blue-600" />
         </button>
-        <button onClick={() => onDelete(category.id)}>
-          <Icon name="Delete" className="text-red-600" />
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onDelete(category.id);
+          }}
+        >
+          <Icon name="Trash2" className="text-red-600" />
         </button>
       </div>
     </div>
