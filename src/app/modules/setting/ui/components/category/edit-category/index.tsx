@@ -101,8 +101,6 @@ export const EditCategoryForm = () => {
     if (categoryDataById?.description) setValue("description", categoryDataById.description);
     if (categoryDataById?.color) setValue("color", categoryDataById.color);
   }, [categoryDataById, setValue]);
-  console.log("subCategoryIcons", subCategoryIcons);
-
   const { fields, append, remove } = useFieldArray({
     control,
     name: "subCategory",

@@ -30,7 +30,6 @@ export const UpdateCategory = async (data: NewCategoryFormSchemaType) => {
   const { id, name, description, color, icon, subCategory } = validatedData.data;
 
   if (!id) {
-    console.log('ids', validatedData.data);
     return { error: "Category ID is required" };
   }
 

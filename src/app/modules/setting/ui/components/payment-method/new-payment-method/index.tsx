@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { useState, useContext, useTransition } from "react";
+import { useState, useContext, useTransition, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { SearchableIconPicker } from "@/components/searchable-icon-picker";
@@ -17,6 +17,7 @@ import { FormSuccess } from "@/components/form-success";
 import { FormError } from "@/components/form-error";
 import { Label } from "@/components/ui/label";
 import { mutate } from "swr";
+import UploadFile from "@/services/upload";
 
 type LucideIconName = keyof typeof icons;
 
@@ -32,27 +33,20 @@ const Icon = ({
   return <LucideIcon className={className} />;
 };
 
+
 export const NewCategoryForm = () => {
   const { paymentOpenNew, closePaymentForm } = useContext(SettingContext);
   const [selectedIcon, setSelectedIcon] = useState<LucideIconName>("Plus");
-  const [subCategoryIcons, setSubCategoryIcons] = useState<
-    Record<number, LucideIconName>
-  >({});
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
+  const fileInputs = useRef<(HTMLInputElement | null)[]>([]);
+  const [imageUrl, setImageUrl] = useState<Record<number, string>>({});
+
 
   const handleIconSelect = (iconName: LucideIconName) => {
     setSelectedIcon(iconName);
     setValue("icon", iconName);
-  };
-
-  const handleSubCategoryIconSelect = (
-    index: number,
-    iconName: LucideIconName
-  ) => {
-    setSubCategoryIcons((prev) => ({ ...prev, [index]: iconName }));
-    setValue(`subCategory.${index}.icon`, iconName);
   };
 
   const { control, handleSubmit, setValue, reset } =
@@ -63,14 +57,23 @@ export const NewCategoryForm = () => {
         name: "",
         color: "#000000",
         icon: "Plus",
-        subCategory: [{ id: undefined, name: "", iconImageUrl: "" }],
+        subPaymentMethod: [{ id: undefined, name: "", iconImageUrl: "", paymentMethodId: undefined }],
       },
     });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "subCategory",
-  });
+  const { fields, append, remove } = useFieldArray({control, name: 'subPaymentMethod'});
+
+const handleSubPaymentMethodImageUpload = async (index: number) => {
+
+  if (fileInputs.current[index]?.files?.[0]) {
+    await UploadFile(fileInputs.current[index].files[0]).then(
+      (result) => {
+        setImageUrl((prev) => ({...prev, [index]: String(result?.url)}))
+        setValue(`subPaymentMethod.${index}.iconImageUrl`, String(result?.url));
+      }
+    )
+  }
+};
 
   const onSubmit = (data: NewPaymentMethodFormSchemaType) => {
     setError(undefined);
@@ -216,33 +219,40 @@ export const NewCategoryForm = () => {
                           </label>
                           <Controller
                             control={control}
-                            name={`subCategory.${index}.name`}
+                            name={`subPaymentMethod.${index}.name`}
                             render={({ field }) => (
                               <input
                                 {...field}
-                                placeholder={`Subcategory ${index + 1}`}
+                                placeholder={`Sub Payment Method ${index + 1}`}
                                 className="border px-2 py-1 rounded w-full"
                               />
                             )}
                           />
                         </div>
 
-                        {/* Subcategory Color */}
+                        {/* Sub payment method icon image */}
                         <div>
                           <label className="block text-xs font-medium text-gray-600 mb-1">
-                            Color
+                            Image
                           </label>
                           <Controller
                             control={control}
-                            name={`subCategory.${index}.color`}
+                            name={`subPaymentMethod.${index}.iconImageUrl`}
                             render={({ field }) => (
                               <input
                                 {...field}
-                                type="color"
+                                type="file"
+                                ref={(el) => {fileInputs.current[index] = el}}
                                 className="border px-2 py-1 rounded w-16 h-8"
+                                onChange={async (e) => {
+                                  if (e.target.files?.[0]) {
+                                    await handleSubPaymentMethodImageUpload(index);
+                                  }
+                                }}
                               />
                             )}
                           />
+                          {}
                         </div>
 
                         {/* Remove Button */}
@@ -263,21 +273,9 @@ export const NewCategoryForm = () => {
                           Icon
                         </label>
                         <div className="flex items-center gap-4 rounded-md bg-white p-3 mb-2">
-                          <p className="text-gray-600 text-sm">Selected:</p>
-                          <span className="flex items-center gap-2 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-                            <Icon
-                              name={subCategoryIcons[index] || "Plus"}
-                              className="h-5 w-5"
-                            />
-                            {subCategoryIcons[index] || "Plus"}
-                          </span>
+                       {/* TODO: */}
                         </div>
-                        <SearchableIconPicker
-                          selectedIcon={subCategoryIcons[index] || "Plus"}
-                          onSelectIcon={(iconName) =>
-                            handleSubCategoryIconSelect(index, iconName)
-                          }
-                        />
+
                       </div>
                     </div>
                   ))}
@@ -285,34 +283,17 @@ export const NewCategoryForm = () => {
                   <Button
                     variant={"ghost"}
                     onClick={() => {
-                      const newIndex = fields.length;
-                      append({ name: "", color: "#000000", icon: "Plus" });
-                      setSubCategoryIcons((prev) => ({
-                        ...prev,
-                        [newIndex]: "Plus",
-                      }));
+                      // const newIndex = fields.length;
+                      // append({ name: "", color: "#000000", icon: "Plus" });
+                      // setSubCategoryIcons((prev) => ({
+                      //   ...prev,
+                      //   [newIndex]: "Plus",
+                      // }));
+                      append({name: "", iconImageUrl: ""})
                     }}
                   >
-                    Add Subcategory
+                    Add Payment Type
                   </Button>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="mt-3 block text-sm font-medium text-gray-700">
-                    Description
-                  </label>
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field }) => (
-                      <textarea
-                        {...field}
-                        placeholder="Category description (optional)"
-                        className="border px-2 py-1 rounded w-full h-20 resize-none"
-                      />
-                    )}
-                  />
                 </div>
               </div>
 

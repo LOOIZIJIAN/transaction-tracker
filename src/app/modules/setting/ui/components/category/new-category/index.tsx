@@ -35,9 +35,7 @@ const Icon = ({
 export const NewCategoryForm = () => {
   const { categoryOpenNew, closeCategoryForm } = useContext(SettingContext);
   const [selectedIcon, setSelectedIcon] = useState<LucideIconName>("Plus");
-  const [subCategoryIcons, setSubCategoryIcons] = useState<
-    Record<number, LucideIconName>
-  >({});
+  const [subCategoryIcons, setSubCategoryIcons] = useState<Record<number, LucideIconName>>({});
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();

@@ -1,5 +1,3 @@
-"use client"; // This component must be a client component
-
 import {
   ImageKitAbortError,
   ImageKitInvalidRequestError,
@@ -7,17 +5,11 @@ import {
   ImageKitUploadNetworkError,
   upload,
 } from "@imagekit/next";
-import { useRef, useState } from "react";
 
 // UploadExample component demonstrates file uploading using ImageKit's Next.js SDK.
-const UploadAttachment = () => {
+export const UploadFile = async (fileInput: File) => {
   // State to keep track of the current upload progress (percentage)
-  const [progress, setProgress] = useState(0);
-
   // Create a ref for the file input element to access its files easily
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  console.log('fileInputRef', fileInputRef)
-  //const [fileName, setFileName] = useState("");
   // Create an AbortController instance to provide an option to cancel the upload if needed.
   const abortController = new AbortController();
 
@@ -65,16 +57,11 @@ const UploadAttachment = () => {
    */
   const handleUpload = async () => {
     // Access the file input element using the ref
-    const fileInput = fileInputRef.current;
-    console.log('file', fileInput)
-    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-      alert("Please select a file to upload");
-      return;
-    }
+
+
 
     // Extract the first file from the file input
-    const file = fileInput.files[0];
-
+    const file = fileInput
     // Retrieve authentication parameters for the upload.
     let authParams;
     try {
@@ -96,13 +83,10 @@ const UploadAttachment = () => {
         file,
         fileName: file.name, // Optionally set a custom file name
         // Progress callback to update upload progress state
-        onProgress: (event) => {
-          setProgress((event.loaded / event.total) * 100);
-        },
         // Abort signal to allow cancellation of the upload if needed.
         abortSignal: abortController.signal,
       });
-      console.log("Upload response:", uploadResponse);
+      return uploadResponse
     } catch (error) {
       // Handle specific error types provided by the ImageKit SDK.
       if (error instanceof ImageKitAbortError) {
@@ -119,21 +103,8 @@ const UploadAttachment = () => {
       }
     }
   };
-
-  return (
-    <div className="flex items-center flex-col border-2 rounded-md p-4">
-            {/* File input element using React ref */}
-            <input type="file" ref={fileInputRef} />
-            {/* Button to trigger the upload process */}
-            <button type="button" onClick={handleUpload}>
-                Upload file
-            </button>
-            <br />
-            {/* Display the current upload progress */}
-            Upload progress: <progress value={progress} max={100}></progress>
-        </div>
-
-  );
+  const res = await handleUpload();
+  return res
 };
 
-export default UploadAttachment;
+export default UploadFile;

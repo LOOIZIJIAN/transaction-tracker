@@ -145,12 +145,12 @@ function DraggableCategoryCard({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-2"
+      className="flex flex-row items-center justify-between bg-white p-4 rounded-lg shadow-md mb-2"
     >
       {/* Drag handle */}
       <div
         {...listeners}
-        className="flex items-center justify-center cursor-grab mr-4 text-gray-500"
+        className="flex items-center justify-center cursor-grab mr-4 text-gray-500 sm:flex-row sm:items-center sm:gap-0"
       >
         <icons.GripVertical />
       </div>
@@ -169,7 +169,7 @@ function DraggableCategoryCard({
         </div>
 
         {/* Subcategories */}
-        <div className="flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-2">
           {category.subcategories?.map((subcat, idx) => (
             <div
               key={subcat.id ?? idx}
